@@ -14,17 +14,41 @@ import sys
 mcbShelf = shelve.open('mcb')
 
 parser = argparse.ArgumentParser()
-parser.add_argument('save',
-                    nargs=2,
-                    help="Saves clipboard to keyword")
-args = parser.parse_args()
-print(args)
+subparsers = parser.add_subparsers(dest='command')
 
-# TODO: Save clipboard content
-#  if len(sys.argv) == 3 and sys.argv[1].lower() == 'save':
-    #  mcbShelf[sys.argv[2]] = pyperclip.paste()
-#  elif len(sys.argv) == 2:
-    # TODO: List keywords and load content
+# Save
+save = subparsers.add_parser('save',
+                             help="Save clipboard content to keyword")
+save.add_argument('keyword',
+                  help='keyword to save data to')
+
+# Single Keyword
+load = subparsers.add_parser('load', help="Load content from keyword to\
+                             clipboard")
+load.add_argument('keyword',
+                  help='keyword to load content to clipboard from')
+
+# List keywords
+list_content = subparsers.add_parser('list', help="List keywords.")
+
+args = parser.parse_args()
+
+if args.command == 'save':
+    print('Saved content to <{0}>.'.format(args.keyword))
+    mcbShelf[args.keyword] = pyperclip.paste()
+elif args.command == 'load':
+    if args.keyword in mcbShelf:
+        print("""
+                Added content for <{key}> to clipboard.\n
+                Content:\n
+                \t{content}
+              """.format(key=args.keyword, content=mcbShelf[args.keyword]))
+        pyperclip.copy(mcbShelf[args.keyword])
+    else:
+        print('Could not find keyword.')
+
+elif args.command == 'list':
+    print(str(list(mcbShelf.keys())))
 
 
 mcbShelf.close()
