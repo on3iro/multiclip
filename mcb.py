@@ -8,7 +8,6 @@
 import shelve
 import pyperclip
 import argparse
-import sys
 
 
 mcbShelf = shelve.open('mcb')
